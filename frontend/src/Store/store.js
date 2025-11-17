@@ -18,11 +18,14 @@ export const useChatStore = create((set,get)=>({
     getUsers: async(token)=>{
         set({isUsersLoading:true});
         try {
-            const res =await axios.get(`http://localhost:7000/api/users/getall`,{
-                headers:{
-                    Authorization:`Bearer ${token}`,
+            const res = await axios.get(
+              `${import.meta.env.VITE_API_URL}/api/users/getall`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
                 },
-            })
+              }
+            );
 
             set({users:res.data});
         } catch (error) {
@@ -35,7 +38,10 @@ export const useChatStore = create((set,get)=>({
     getMessages:  async (userId,token) => {
         set({isMessagesLoading:true});
         try {
-           const res = await axios.get(`http://localhost:7000/api/messages/${userId}`,{headers:{Authorization:`Bearer ${token}`}}) ;
+           const res = await axios.get(
+             `${import.meta.env.VITE_API_URL}/api/messages/${userId}`,
+             { headers: { Authorization: `Bearer ${token}` } }
+           ); ;
            set({messages:res.data});
         } catch (error) {
             console.error(error.response?.data?.message || "Failed to fetch the messages");
@@ -48,7 +54,13 @@ export const useChatStore = create((set,get)=>({
     sendMessage:async (messageData,token) => {
         const {selectedUser ,messages} =get();
         try {
-            const res = await axios.post(`http://localhost:7000/api/messages/send/${selectedUser.clerkUserId}`,messageData,{headers:{Authorization:`Bearer ${token}`}});
+            const res = await axios.post(
+              `${import.meta.env.VITE_API_URL}/api/messages/send/${
+                selectedUser.clerkUserId
+              }`,
+              messageData,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
             const newMessage = res.data;
             set({messages:[...messages,newMessage]});
             return newMessage;
@@ -61,8 +73,8 @@ export const useChatStore = create((set,get)=>({
     initalizeSocket:(userId)=>{
         if(get().socket) return get().socket;
 
-        const socket= io("http://localhost:7000",{
-            query:{userId:userId},
+        const socket = io(`${import.meta.env.VITE_API_URL}`, {
+          query: { userId: userId },
         });
         socket.on("connect",()=>console.log("Connected to socket server"));
         socket.on("disconnect",()=>console.log("Disconnected"));
